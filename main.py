@@ -14,3 +14,5 @@ if __name__ == '__main__':
     print_hi('PyCharm')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+# https://www.relataly.com/visualize-covid-19-data-on-a-geographic-heat-maps/291/
