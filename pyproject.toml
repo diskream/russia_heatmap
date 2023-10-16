@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "russia-heatmap"
+version = "0.1.0"
+description = ""
+authors = ["Nikolay <diskream77@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+geopandas = "^0.14.0"
+matplotlib = "^3.8.0"
+openpyxl = "^3.1.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.292"
+nuitka = "^1.8.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+select = ["I", "F", "E", "S", "W", "C", "T", "Q"]
+
+fixable = ["ALL"]
+
+# Same as Black.
+line-length = 120
+
+target-version = "py311"
