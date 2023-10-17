@@ -10,11 +10,17 @@ python = "^3.11"
 geopandas = "^0.14.0"
 matplotlib = "^3.8.0"
 openpyxl = "^3.1.2"
+tqdm = "^4.66.1"
+plotly = "^5.17.0"
+pyarrow = {version = "^13.0.0", extras = ["parquet"]}
+seaborn = "^0.13.0"
 
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.292"
 nuitka = "^1.8.4"
+jupyter = "^1.0.0"
+black = "^23.9.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -22,6 +28,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 select = ["I", "F", "E", "S", "W", "C", "T", "Q"]
+ignore = ['C408']
 
 fixable = ["ALL"]
 
@@ -29,3 +36,6 @@ fixable = ["ALL"]
 line-length = 120
 
 target-version = "py311"
+
+[tool.black]
+line-length = 120
