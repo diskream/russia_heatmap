@@ -1,8 +1,7 @@
-import difflib
 import logging
 import os
 import sys
-from typing import Literal
+from typing import Literal, TypeVar
 
 import geopandas as gpd
 import numpy as np
@@ -13,9 +12,17 @@ from shapely.geometry.base import GeometrySequence
 from shapely.ops import snap, unary_union
 from tqdm import tqdm
 
-logger = logging.getLogger('utils')
+logger = logging.getLogger("utils")
 
-def fix_yamalo_nenestky_ao(gdf):
+GDF = TypeVar("GDF", bound=gpd.GeoDataFrame)
+
+
+def fix_yamalo_nenestky_ao(gdf: GDF) -> GDF:
+    """Исправление линии на 180 меридиане Чукотского АО.
+
+    :param gdf:
+    :return:
+    """
     polygons: list[Polygon] = []
     geoms: GeometrySequence = gdf.loc[gdf.region == "Чукотский автономный округ", "geometry"].values[0].geoms
 
@@ -27,38 +34,9 @@ def fix_yamalo_nenestky_ao(gdf):
     return gdf
 
 
-def get_data_for_plot(local_data_file_path: str) -> pd.DataFrame:
-    geo_df = gpd.read_file(r"RF/admin_4.shp")[["name_ru", "ref", "geometry"]]
-
-    # geo_df = geo_df.to_crs('EPSG:32646')
-    geo_df.geometry = geo_df.geometry.simplify(0.05)
-
-    colormap_data = pd.read_excel(local_data_file_path)
-    colormap_data["Названия строк"] = colormap_data["Названия строк"].replace(
-        {
-            "Республика Тыва": "Тыва",
-            "Удмуртская Республика": "Удмуртия",
-            "Чеченская Республика": "Чечня",
-            "Чувашская Республика - Чувашия": "Чувашия",
-        }
-    )
-
-    target_region_names: list[str] = list(geo_df["name_ru"])
-    colormap_region_names: list[str] = list(colormap_data["Названия строк"])
-    target_region_names.sort()
-    colormap_region_names.sort()
-
-    target_map = {
-        target: next(iter(difflib.get_close_matches(target, colormap_region_names, cutoff=0.5)), None)
-        for target in target_region_names
-    }
-
-    geo_df["name_ru"].replace(target_map, inplace=True)
-
-    return pd.merge(left=geo_df, right=colormap_data, left_on="name_ru", right_on="Названия строк", how="right")
-
-
-def prepare_regions(gdf, area_threshold=100e6, simplify_tolerance=500):
+def prepare_regions(
+    gdf: gpd.GeoDataFrame, area_threshold: int = 100e6, simplify_tolerance: int = 500
+) -> gpd.GeoDataFrame:
     """Подготовка регионов к построению
 
     - Упрощение геометрии с допуском simplify_tol
@@ -121,18 +99,26 @@ def geom_to_shape(g):
     return pd.Series([x, y])
 
 
-def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet"):
+def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gpd.GeoDataFrame:
+    """Обработка geojson карты РФ.
 
-    gdf = gpd.read_file(resource_path(os.path.join('app', 'map_data', 'russia_regions.geojson')))
+    :param path:
+    :param mode:
+    :return:
+    """
+    gdf = gpd.read_file(resource_path(os.path.join("app", "map_data", "russia_regions.geojson")))
 
+    # переводим в другой CRS правильного отображения на графике
     gdf.to_crs("ESRI:102027", inplace=True)
 
     gdf = fix_yamalo_nenestky_ao(gdf)
 
     gdf = prepare_regions(gdf)
 
+    # добавляем координаты для постройки ScatterPlot
     gdf[["x", "y"]] = gdf.geometry.progress_apply(geom_to_shape)
 
+    # сохраняем обработанный файл, чтобы не тратить время в следующий раз на обработку
     if mode == "pickle":
         gdf.to_pickle(path)
     else:
@@ -142,18 +128,30 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet"):
 
 
 def get_color_range(colormap: LinearSegmentedColormap, color_range: int, mode: Literal["rgb", "rgba"] = "rgb"):
-    h = 1.0 / (color_range - 1)
-    colorscale = []
+    """Получение списка из RGBA значений, соответствующих градиенту цветов из colormap.
+
+    :param colormap:
+    :param color_range:
+    :param mode:
+    :return:
+    """
+    h: float = 1.0 / (color_range - 1)
+    colorscale: list[list[float | str]] = []
 
     for alpha in range(color_range):
         color = list(map(np.uint8, np.array(colormap(alpha * h)[:3]) * 255))
-        rgb_a_tuple = tuple(*color) if mode == "rgb" else (*color, 0.9)
+        rgb_a_tuple: tuple[float, ...] = tuple(*color) if mode == "rgb" else (*color, 0.9)
         colorscale.append([alpha * h, mode + str(rgb_a_tuple)])
 
     return colorscale
 
 
-def resource_path(relative):
+def resource_path(relative: str) -> str:
+    """Получение безопасного пути до ресурса для PyInstaller.
+
+    :param relative:
+    :return:
+    """
     logger.error(relative)
     if hasattr(sys, "_MEIPASS"):
         return os.path.join(sys._MEIPASS, relative)

@@ -18,13 +18,18 @@ if typing.TYPE_CHECKING:
 logger = logging.getLogger("DialogFrame")
 logger.setLevel("INFO")
 
+
 class DialogFrame(Frame):
-    def __init__(self, master: "App", compiled_gdf_path: str = resource_path(os.path.join(r'app\map_data', 'russia_regions.parquet'))):
+    def __init__(
+        self,
+        master: "App",
+        compiled_gdf_path: str = resource_path(os.path.join(r"app\map_data", "russia_regions.parquet")),
+    ):
         Frame.__init__(self, master)
 
-        Label(self, text="Выберите .xlsx файл.").pack(side=tk.LEFT, padx=50, pady=5)
+        Label(self, text="Выберите .xlsx файл.").pack(side=tk.LEFT, padx=50, pady=10)
 
-        Button(self, text="Выбрать", command=self._get_xlsx_path_from_explorer).pack(side=tk.LEFT, padx=2, pady=5)
+        Button(self, text="Выбрать", command=self._get_xlsx_path_from_explorer).pack(side=tk.LEFT, padx=50, pady=10)
 
         try:
             logger.error("Trying to load parquet {path}".format(path=compiled_gdf_path))
