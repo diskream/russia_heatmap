@@ -1,4 +1,7 @@
 import difflib
+import logging
+import os
+import sys
 from typing import Literal
 
 import geopandas as gpd
@@ -10,6 +13,7 @@ from shapely.geometry.base import GeometrySequence
 from shapely.ops import snap, unary_union
 from tqdm import tqdm
 
+logger = logging.getLogger('utils')
 
 def fix_yamalo_nenestky_ao(gdf):
     polygons: list[Polygon] = []
@@ -118,7 +122,8 @@ def geom_to_shape(g):
 
 
 def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet"):
-    gdf = gpd.read_file("map_data/russia_regions.geojson")
+
+    gdf = gpd.read_file(resource_path(os.path.join('app', 'map_data', 'russia_regions.geojson')))
 
     gdf.to_crs("ESRI:102027", inplace=True)
 
@@ -146,3 +151,10 @@ def get_color_range(colormap: LinearSegmentedColormap, color_range: int, mode: L
         colorscale.append([alpha * h, mode + str(rgb_a_tuple)])
 
     return colorscale
+
+
+def resource_path(relative):
+    logger.error(relative)
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative)
+    return os.path.join(relative)

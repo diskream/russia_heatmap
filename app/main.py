@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from core.init_dialog_frame import DialogFrame
+from app.core.init_dialog_frame import DialogFrame
 
 
 class App(tk.Tk):

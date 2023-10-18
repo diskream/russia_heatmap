@@ -6,14 +6,13 @@ authors = ["Nikolay <diskream77@yandex.ru>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11, <3.12"
 geopandas = "^0.14.0"
-matplotlib = "^3.8.0"
 openpyxl = "^3.1.2"
 tqdm = "^4.66.1"
 plotly = "^5.17.0"
 pyarrow = {version = "^13.0.0", extras = ["parquet"]}
-seaborn = "^0.13.0"
+matplotlib = "^3.8.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -21,6 +20,11 @@ ruff = "^0.0.292"
 nuitka = "^1.8.4"
 jupyter = "^1.0.0"
 black = "^23.9.1"
+pyside6 = "^6.6.0"
+pyinstaller = "^6.1.0"
+
+[tool.poetry.scripts]
+build = "app.pyinstaller:install"
 
 [build-system]
 requires = ["poetry-core"]

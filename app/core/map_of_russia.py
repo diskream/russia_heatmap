@@ -1,7 +1,7 @@
 from matplotlib.colors import LinearSegmentedColormap
 from plotly.graph_objects import Figure, Scatter
 
-from core.utils import get_color_range
+from app.core.utils import get_color_range
 
 
 class RussiaHeatMap(Figure):

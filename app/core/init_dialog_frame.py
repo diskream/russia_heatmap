@@ -1,24 +1,25 @@
 import difflib
 import logging
+import os
 import tkinter as tk
+import typing
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Button, Frame, Label
 
 import geopandas as gpd
 import pandas as pd
-import typing_extensions
 
-from core.map_of_russia import RussiaHeatMap
-from core.utils import compile_gdf
+from app.core.map_of_russia import RussiaHeatMap
+from app.core.utils import compile_gdf, resource_path
 
-if typing_extensions.TYPE_CHECKING:
-    from main import App
+if typing.TYPE_CHECKING:
+    from app.main import App
 
 logger = logging.getLogger("DialogFrame")
-
+logger.setLevel("INFO")
 
 class DialogFrame(Frame):
-    def __init__(self, master: "App", compiled_gdf_path: str = "map_data/russia_regions.parquet"):
+    def __init__(self, master: "App", compiled_gdf_path: str = resource_path(os.path.join(r'app\map_data', 'russia_regions.parquet'))):
         Frame.__init__(self, master)
 
         Label(self, text="Выберите .xlsx файл.").pack(side=tk.LEFT, padx=50, pady=5)
@@ -26,7 +27,7 @@ class DialogFrame(Frame):
         Button(self, text="Выбрать", command=self._get_xlsx_path_from_explorer).pack(side=tk.LEFT, padx=2, pady=5)
 
         try:
-            logger.info("Trying to load parquet {path}".format(path=compiled_gdf_path))
+            logger.error("Trying to load parquet {path}".format(path=compiled_gdf_path))
             gdf = gpd.read_parquet(compiled_gdf_path)
         except Exception as exc:
             logger.error("Unable to load parquet {exc}; recompiling gdf...".format(exc=exc))
