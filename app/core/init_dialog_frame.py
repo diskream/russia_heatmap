@@ -23,7 +23,7 @@ class DialogFrame(Frame):
     def __init__(
         self,
         master: "App",
-        compiled_gdf_path: str = resource_path(os.path.join(r"app\map_data", "russia_regions.parquet")),
+        compiled_gdf_path: str = resource_path(os.path.join("map_data", "russia_regions.parquet")),
     ):
         Frame.__init__(self, master)
 
