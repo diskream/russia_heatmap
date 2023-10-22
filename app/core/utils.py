@@ -106,7 +106,7 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
     :param mode:
     :return:
     """
-    gdf = gpd.read_file(resource_path(os.path.join("app", "map_data", "russia_regions.geojson")))
+    gdf = gpd.read_file(resource_path(os.path.join("map_data", "russia_regions.geojson")))
 
     # переводим в другой CRS правильного отображения на графике
     gdf.to_crs("ESRI:102027", inplace=True)
@@ -117,6 +117,14 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
 
     # добавляем координаты для постройки ScatterPlot
     gdf[["x", "y"]] = gdf.geometry.progress_apply(geom_to_shape)
+
+    gdf = pd.merge(
+        left=gdf,
+        right=pd.read_excel(resource_path(os.path.join("map_data", "additional_data.xlsx"))),
+        left_on="region",
+        right_on="Регион",
+        how="left",
+    )
 
     # сохраняем обработанный файл, чтобы не тратить время в следующий раз на обработку
     if mode == "pickle":

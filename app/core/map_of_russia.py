@@ -1,7 +1,72 @@
+from typing import Any
+
 from matplotlib.colors import LinearSegmentedColormap
 from plotly.graph_objects import Figure, Scatter
 
 from app.core.utils import get_color_range
+
+REGION_CONFIG: dict[str, dict[str, Any]] = {
+    "Московская область": {
+        "shift": {
+            "x": 0,
+            "y": 5e4,
+        },
+    },
+    "Республика Мордовия": {
+        "shift": {
+            "x": 0,
+            "y": -2e4,
+        },
+    },
+    "Астраханская область": {
+        "shift": {
+            "x": 1e4,
+            "y": 0,
+        },
+    },
+    "Краснодарский край": {
+        "shift": {
+            "x": 0,
+            "y": 2e4,
+        },
+    },
+    "Сахалинская область": {
+        "shift": {
+            "x": -4e4,
+            "y": 0,
+        },
+    },
+    "Хабаровский край": {
+        "shift": {
+            "x": 2e4,
+            "y": -2e5,
+        },
+    },
+    "Камчатский край": {
+        "shift": {
+            "x": 0,
+            "y": -2e5,
+        },
+    },
+    "Ненецкий автономный округ": {
+        "shift": {
+            "x": 0,
+            "y": -2e4,
+        },
+    },
+    "Республика Адыгея": {
+        "shift": {
+            "x": 2e4,
+            "y": 0,
+        },
+    },
+    "Архангельская область": {
+        "shift": {
+            "x": 0,
+            "y": 0,
+        },
+    },
+}
 
 
 class RussiaHeatMap(Figure):
@@ -17,7 +82,7 @@ class RussiaHeatMap(Figure):
         },
     )
 
-    def __init__(self, gdf, add_names_to_scatter: bool = False, **kwargs):
+    def __init__(self, gdf, add_region_number: bool = True, **kwargs):
         super().__init__(**kwargs)
 
         unique_percent: set[float] = set(gdf["Процент"])
@@ -28,7 +93,8 @@ class RussiaHeatMap(Figure):
         colormap = dict(zip(sorted(unique_percent), tuple(red_blue)))
 
         for _, row in gdf.iterrows():
-            text = f'<b>{row["Названия строк"]}</b><br>Процент отбития: {row["Процент"] * 100 :.2f}%<br>'
+            region_name: str = row["Названия строк"]
+            text = f'<b>{region_name}</b><br>Процент отбития: {row["Процент"] * 100 :.2f}%<br>'
             self.add_trace(
                 Scatter(
                     x=row.x,
@@ -42,13 +108,17 @@ class RussiaHeatMap(Figure):
                     fillcolor=colormap[row["Процент"]][1],
                 )
             )
-            if add_names_to_scatter:
+            if add_region_number:
                 centroid = row.geometry.centroid
+                x, y = centroid.x, centroid.y
+                if region_name in REGION_CONFIG:
+                    x += REGION_CONFIG[region_name]["shift"]["x"]
+                    y += REGION_CONFIG[region_name]["shift"]["y"]
                 self.add_trace(
                     Scatter(
-                        x=[centroid.x],
-                        y=[centroid.y],
-                        text=row["Названия строк"],
+                        x=[x],
+                        y=[y],
+                        text=int(row["Код субъекта РФ"]),
                         mode="text",
                         textposition="middle center",
                     ),
