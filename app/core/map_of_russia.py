@@ -1,5 +1,6 @@
 from typing import Any
 
+import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 from plotly.graph_objects import Figure, Scatter
 
@@ -60,12 +61,6 @@ REGION_CONFIG: dict[str, dict[str, Any]] = {
             "y": 0,
         },
     },
-    "Архангельская область": {
-        "shift": {
-            "x": 0,
-            "y": 0,
-        },
-    },
 }
 
 
@@ -81,11 +76,13 @@ class RussiaHeatMap(Figure):
             "alpha": ((0.0, 1, 1), (0.5, 1, 1), (1.0, 1, 1)),
         },
     )
+    REGION_NAME_COLUMN: str = "Названия строк"
+    TARGET_PERCENT_COLUMN: str = "Процент"
 
     def __init__(self, gdf, add_region_number: bool = True, **kwargs):
         super().__init__(**kwargs)
 
-        unique_percent: set[float] = set(gdf["Процент"])
+        unique_percent: set[float] = set(gdf[self.TARGET_PERCENT_COLUMN])
 
         red_blue = get_color_range(self.COLOR_MAP, len(unique_percent), mode="rgba")
 
@@ -93,61 +90,93 @@ class RussiaHeatMap(Figure):
         colormap = dict(zip(sorted(unique_percent), tuple(red_blue)))
 
         for _, row in gdf.iterrows():
-            region_name: str = row["Названия строк"]
-            text = f'<b>{region_name}</b><br>Процент отбития: {row["Процент"] * 100 :.2f}%<br>'
-            self.add_trace(
-                Scatter(
-                    x=row.x,
-                    y=row.y,
-                    name=row.region,
-                    text=text,
-                    hoverinfo="text",
-                    line_color="black",
-                    fill="toself",
-                    line_width=1,
-                    fillcolor=colormap[row["Процент"]][1],
-                )
-            )
-            if add_region_number:
-                centroid = row.geometry.centroid
-                x, y = centroid.x, centroid.y
-                if region_name in REGION_CONFIG:
-                    x += REGION_CONFIG[region_name]["shift"]["x"]
-                    y += REGION_CONFIG[region_name]["shift"]["y"]
-                self.add_trace(
-                    Scatter(
-                        x=[x],
-                        y=[y],
-                        text=int(row["Код субъекта РФ"]),
-                        mode="text",
-                        textposition="middle center",
-                    ),
-                )
-            self.update_layout(uniformtext_minsize=8, uniformtext_mode="hide")
+            self._fill_regions(row, colormap, add_region_number)
 
-        colorbar_trace = Scatter(
-            x=[None],
-            y=[None],
-            mode="markers",
-            marker=dict(
-                colorscale=get_color_range(self.COLOR_MAP, 255, mode="rgba"),
-                showscale=True,
-                cmin=-5,
-                cmax=5,
-                colorbar=dict(
-                    thickness=20,
-                    tickvals=[-5, 5],
-                    ticktext=[min(unique_percent), max(unique_percent)],
-                    outlinewidth=0,
-                ),
-            ),
-            hoverinfo="none",
-        )
-
-        self.add_trace(colorbar_trace)
+        self._add_colorbar(unique_percent)
 
         # не отображать оси, уравнять масштаб по осям
         self.update_xaxes(visible=False)
         self.update_yaxes(visible=False, scaleanchor="x", scaleratio=1)
 
         self.update_layout(showlegend=False, dragmode="pan")
+
+    @classmethod
+    def _get_hover_text(cls, row: pd.Series) -> str:
+        hover_text: list[str] = []
+        for name, value in row.loc[cls.REGION_NAME_COLUMN :].items():
+            hover_text.append(
+                f"{name}: {value}" if name != cls.TARGET_PERCENT_COLUMN else f"{name}: {value * 100 :.2f} %"
+            )
+        return "<br>".join(hover_text)
+
+    def _fill_regions(self, row: pd.Series, colormap: dict[float, tuple[float, str]], add_region_number: bool) -> None:
+        text = self._get_hover_text(row)
+        self.add_trace(
+            Scatter(
+                x=row.x,
+                y=row.y,
+                name=row.region,
+                text=text,
+                hoverinfo="text",
+                hoverlabel=dict(bgcolor="white"),
+                line_color="black",
+                fill="toself",
+                line_width=1,
+                fillcolor=colormap[row[self.TARGET_PERCENT_COLUMN]][1],
+            )
+        )
+        if add_region_number:
+            self._add_region_number(row)
+
+        self.update_layout(uniformtext_minsize=8, uniformtext_mode="hide")
+
+    def _add_colorbar(self, unique_percent: set[float]) -> None:
+        self.add_trace(
+            Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                marker=dict(
+                    colorscale=get_color_range(self.COLOR_MAP, 255, mode="rgba"),
+                    showscale=True,
+                    cmin=-5,
+                    cmax=5,
+                    colorbar=dict(
+                        thickness=20,
+                        tickvals=[-5, 5],
+                        ticktext=[f"{int(min(unique_percent) * 100)} %", f"{int(max(unique_percent) * 100)} %"],
+                        outlinewidth=0,
+                    ),
+                ),
+                hoverinfo="none",
+            )
+        )
+
+    def _add_region_number(self, row: pd.Series):
+        centroid = row.geometry.centroid
+        region_name: str = row[self.REGION_NAME_COLUMN]
+        x, y = centroid.x, centroid.y
+        if region_name in REGION_CONFIG:
+            x += REGION_CONFIG[region_name]["shift"]["x"]
+            y += REGION_CONFIG[region_name]["shift"]["y"]
+        if region_name == "Архангельская область":
+            for shift in ((-4e5, -3e5), (6e5, 4e5), (1e6, 1.25e6)):
+                x_shift, y_shift = shift
+                x_shift += x
+                y_shift += y
+                self._add_region_scatter(x_shift, y_shift, int(row["Код субъекта РФ"]))
+            return
+        self._add_region_scatter(x, y, int(row["Код субъекта РФ"]))
+
+    def _add_region_scatter(self, x: float, y: float, region_number: int) -> None:
+        self.add_trace(
+            Scatter(
+                x=[x],
+                y=[y],
+                text=region_number,
+                textfont=dict(size=13),
+                mode="text",
+                textposition="middle center",
+                hoverinfo="skip",
+            ),
+        )
