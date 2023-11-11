@@ -5,7 +5,7 @@ a = Analysis(
     ['app\\main.py'],
     pathex=[],
     binaries=[],
-    datas=[('app\\map_data\\russia_regions.parquet', 'app\\map_data'), ('app\\map_data\\russia_regions.geojson', 'app\\map_data')],
+    datas=[('app\\map_data\\russia_regions.parquet', 'map_data'), ('app\\map_data\\russia_regions.geojson', 'map_data')],
     hiddenimports=['fiona._shim', 'pyarrow.vendored.version'],
     hookspath=[],
     hooksconfig={},

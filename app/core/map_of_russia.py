@@ -85,12 +85,14 @@ class RussiaHeatMap(Figure):
             region_column_name: str,
             target_column_name: str,
             add_region_number: bool = True,
+            from_startup: bool = False,
             **kwargs,
     ):
         super().__init__(**kwargs)
 
         self._region_column_name = region_column_name
         self._target_column_name = target_column_name
+        self._from_startup = from_startup
 
         unique_percent: set[float] = set(gdf[self._target_column_name])
 
@@ -141,7 +143,7 @@ class RussiaHeatMap(Figure):
                 fillcolor=color,
             )
         )
-        if add_region_number:
+        if add_region_number and not self._from_startup:
             self._add_region_number(row)
 
         self.update_layout(uniformtext_minsize=8, uniformtext_mode="hide")

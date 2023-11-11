@@ -1,18 +1,19 @@
-import tkinter as tk
+import os
+from threading import Timer
+import webbrowser
 
-from app.core.init_dialog_frame import DialogFrame
+import dash
 
+from app.factory import setup_app_layout
 
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
+app = dash.Dash(__name__)
 
-        self.title("Тепловая карта Российской Федерации")
+setup_app_layout(app)
 
-        self.table_list_frame = DialogFrame(self)
-        self.table_list_frame.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
-
+def open_browser():
+    if not os.environ.get("WERKZEUG_RUN_MAIN"):
+        webbrowser.open_new('http://127.0.0.1:5000/')
 
 if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+    Timer(1, open_browser).start()
+    app.run_server(debug=True, port=5000)
