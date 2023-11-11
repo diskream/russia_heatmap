@@ -6,11 +6,12 @@ from typing import Literal, TypeVar
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from matplotlib.colors import LinearSegmentedColormap
 from shapely import MultiPolygon, Polygon
 from shapely.geometry.base import GeometrySequence
 from shapely.ops import snap, unary_union
 from tqdm import tqdm
+
+from app.core.colormap import LinearColormap
 
 logger = logging.getLogger("utils")
 
@@ -122,7 +123,7 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
         left=gdf,
         right=pd.read_excel(resource_path(os.path.join("map_data", "additional_data.xlsx"))),
         left_on="region",
-        right_on="Регион",
+        right_on="Наименование региона (Коды)",
         how="left",
     )
 
@@ -135,7 +136,7 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
     return gdf
 
 
-def get_color_range(colormap: LinearSegmentedColormap, color_range: int, mode: Literal["rgb", "rgba"] = "rgb"):
+def get_color_range(colormap: LinearColormap, color_range: int, mode: Literal["rgb", "rgba"] = "rgb"):
     """Получение списка из RGBA значений, соответствующих градиенту цветов из colormap.
 
     :param colormap:

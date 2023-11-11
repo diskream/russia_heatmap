@@ -1,9 +1,10 @@
 from typing import Any
 
+import numpy as np
 import pandas as pd
-from matplotlib.colors import LinearSegmentedColormap
 from plotly.graph_objects import Figure, Scatter
 
+from app.core.colormap import LinearColormap
 from app.core.utils import get_color_range
 
 REGION_CONFIG: dict[str, dict[str, Any]] = {
@@ -67,7 +68,7 @@ REGION_CONFIG: dict[str, dict[str, Any]] = {
 class RussiaHeatMap(Figure):
     """Шаблон фигуры для рисования поверх карты России"""
 
-    COLOR_MAP = LinearSegmentedColormap(
+    COLOR_MAP = LinearColormap(
         "RedBlue",
         {
             "red": ((0.0, 0.12, 0.12), (1.0, 0.96, 0.96)),
@@ -76,13 +77,22 @@ class RussiaHeatMap(Figure):
             "alpha": ((0.0, 1, 1), (0.5, 1, 1), (1.0, 1, 1)),
         },
     )
-    REGION_NAME_COLUMN: str = "Названия строк"
-    TARGET_PERCENT_COLUMN: str = "Процент"
 
-    def __init__(self, gdf, add_region_number: bool = True, **kwargs):
+    def __init__(
+            self,
+            *,
+            gdf,
+            region_column_name: str,
+            target_column_name: str,
+            add_region_number: bool = True,
+            **kwargs,
+    ):
         super().__init__(**kwargs)
 
-        unique_percent: set[float] = set(gdf[self.TARGET_PERCENT_COLUMN])
+        self._region_column_name = region_column_name
+        self._target_column_name = target_column_name
+
+        unique_percent: set[float] = set(gdf[self._target_column_name])
 
         red_blue = get_color_range(self.COLOR_MAP, len(unique_percent), mode="rgba")
 
@@ -100,17 +110,23 @@ class RussiaHeatMap(Figure):
 
         self.update_layout(showlegend=False, dragmode="pan")
 
-    @classmethod
-    def _get_hover_text(cls, row: pd.Series) -> str:
+    def _get_hover_text(self, row: pd.Series) -> str:
         hover_text: list[str] = []
-        for name, value in row.loc[cls.REGION_NAME_COLUMN :].items():
+        for name, value in row.loc[self._region_column_name :].items():
+            if isinstance(value, float) and np.isnan(value):
+                hover_text.append(f"{name}: {row['region']}")
+                break
             hover_text.append(
-                f"{name}: {value}" if name != cls.TARGET_PERCENT_COLUMN else f"{name}: {value * 100 :.2f} %"
+                f"{name}: {value * 100 :.2f} %" if 'процент' in name.lower() and isinstance(value, (float, int)) else f"{name}: {value}"
             )
         return "<br>".join(hover_text)
 
     def _fill_regions(self, row: pd.Series, colormap: dict[float, tuple[float, str]], add_region_number: bool) -> None:
         text = self._get_hover_text(row)
+        try:
+            color = colormap[row[self._target_column_name]][1]
+        except KeyError:
+            color = 'grey'
         self.add_trace(
             Scatter(
                 x=row.x,
@@ -122,7 +138,7 @@ class RussiaHeatMap(Figure):
                 line_color="black",
                 fill="toself",
                 line_width=1,
-                fillcolor=colormap[row[self.TARGET_PERCENT_COLUMN]][1],
+                fillcolor=color,
             )
         )
         if add_region_number:
@@ -154,7 +170,7 @@ class RussiaHeatMap(Figure):
 
     def _add_region_number(self, row: pd.Series):
         centroid = row.geometry.centroid
-        region_name: str = row[self.REGION_NAME_COLUMN]
+        region_name: str = row[self._region_column_name]
         x, y = centroid.x, centroid.y
         if region_name in REGION_CONFIG:
             x += REGION_CONFIG[region_name]["shift"]["x"]
