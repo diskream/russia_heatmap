@@ -79,14 +79,14 @@ class RussiaHeatMap(Figure):
     )
 
     def __init__(
-            self,
-            *,
-            gdf,
-            region_column_name: str,
-            target_column_name: str,
-            add_region_number: bool = True,
-            from_startup: bool = False,
-            **kwargs,
+        self,
+        *,
+        gdf,
+        region_column_name: str,
+        target_column_name: str,
+        add_region_number: bool = True,
+        from_startup: bool = False,
+        **kwargs,
     ):
         super().__init__(**kwargs)
 
@@ -94,7 +94,7 @@ class RussiaHeatMap(Figure):
         self._target_column_name = target_column_name
         self._from_startup = from_startup
 
-        unique_percent: set[float] = set(gdf[self._target_column_name])
+        unique_percent: set[float] = set(gdf[self._target_column_name]) if not self._from_startup else {0.0, 1.0}
 
         red_blue = get_color_range(self.COLOR_MAP, len(unique_percent), mode="rgba")
 
@@ -114,12 +114,17 @@ class RussiaHeatMap(Figure):
 
     def _get_hover_text(self, row: pd.Series) -> str:
         hover_text: list[str] = []
-        for name, value in row.loc[self._region_column_name :].items():
+        row_slice: pd.Series = (
+            row.loc[self._region_column_name :] if not self._from_startup else row.loc[[self._region_column_name]]
+        )
+        for name, value in row_slice.items():
             if isinstance(value, float) and np.isnan(value):
                 hover_text.append(f"{name}: {row['region']}")
                 break
             hover_text.append(
-                f"{name}: {value * 100 :.2f} %" if 'процент' in name.lower() and isinstance(value, (float, int)) else f"{name}: {value}"
+                f"{name}: {value * 100 :.2f} %"
+                if "процент" in name.lower() and isinstance(value, (float, int))
+                else f"{name}: {value}"
             )
         return "<br>".join(hover_text)
 
@@ -128,7 +133,7 @@ class RussiaHeatMap(Figure):
         try:
             color = colormap[row[self._target_column_name]][1]
         except KeyError:
-            color = 'grey'
+            color = "grey"
         self.add_trace(
             Scatter(
                 x=row.x,

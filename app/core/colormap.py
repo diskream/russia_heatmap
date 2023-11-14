@@ -82,19 +82,14 @@ def _create_lookup_table(N, data, gamma=1.0):
         for k, v in kwargs.items():
             data_shape = v.shape
 
-            if (len(data_shape) != len(shape)
-                    or any(s != t and t is not None for s, t in zip(data_shape, shape))):
-                dim_labels = iter(itertools.chain(
-                    'NMLKJIH',
-                    (f"D{i}" for i in itertools.count())))
-                text_shape = ", ".join([str(n) if n is not None else next(dim_labels)
-                                        for n in shape[::-1]][::-1])
+            if len(data_shape) != len(shape) or any(s != t and t is not None for s, t in zip(data_shape, shape)):
+                dim_labels = iter(itertools.chain("NMLKJIH", (f"D{i}" for i in itertools.count())))
+                text_shape = ", ".join([str(n) if n is not None else next(dim_labels) for n in shape[::-1]][::-1])
                 if len(shape) == 1:
                     text_shape += ","
 
                 raise ValueError(
-                    f"{k!r} must be {len(shape)}D with shape ({text_shape}), "
-                    f"but your input has shape {v.shape}"
+                    f"{k!r} must be {len(shape)}D with shape ({text_shape}), " f"but your input has shape {v.shape}"
                 )
 
     if callable(data):
@@ -112,9 +107,8 @@ def _create_lookup_table(N, data, gamma=1.0):
     y0 = adata[:, 1]
     y1 = adata[:, 2]
 
-    if x[0] != 0. or x[-1] != 1.0:
-        raise ValueError(
-            "data mapping points must start with x=0 and end with x=1")
+    if x[0] != 0.0 or x[-1] != 1.0:
+        raise ValueError("data mapping points must start with x=0 and end with x=1")
     if (np.diff(x) < 0).any():
         raise ValueError("data mapping points must have x in increasing order")
     # begin generation of lookup table
@@ -127,11 +121,13 @@ def _create_lookup_table(N, data, gamma=1.0):
         ind = np.searchsorted(x, xind)[1:-1]
 
         distance = (xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])
-        lut = np.concatenate([
-            [y1[0]],
-            distance * (y0[ind] - y1[ind - 1]) + y1[ind - 1],
-            [y0[-1]],
-        ])
+        lut = np.concatenate(
+            [
+                [y1[0]],
+                distance * (y0[ind] - y1[ind - 1]) + y1[ind - 1],
+                [y0[-1]],
+            ]
+        )
     # ensure that the lut is confined to values between 0 and 1 by clipping it
     return np.clip(lut, 0.0, 1.0)
 
@@ -203,15 +199,11 @@ class LinearColormap:
 
     def _init(self):
         self._lut = np.ones((self.N + 3, 4), float)
-        self._lut[:-3, 0] = _create_lookup_table(
-            self.N, self._segmentdata['red'], self._gamma)
-        self._lut[:-3, 1] = _create_lookup_table(
-            self.N, self._segmentdata['green'], self._gamma)
-        self._lut[:-3, 2] = _create_lookup_table(
-            self.N, self._segmentdata['blue'], self._gamma)
-        if 'alpha' in self._segmentdata:
-            self._lut[:-3, 3] = _create_lookup_table(
-                self.N, self._segmentdata['alpha'], 1)
+        self._lut[:-3, 0] = _create_lookup_table(self.N, self._segmentdata["red"], self._gamma)
+        self._lut[:-3, 1] = _create_lookup_table(self.N, self._segmentdata["green"], self._gamma)
+        self._lut[:-3, 2] = _create_lookup_table(self.N, self._segmentdata["blue"], self._gamma)
+        if "alpha" in self._segmentdata:
+            self._lut[:-3, 3] = _create_lookup_table(self.N, self._segmentdata["alpha"], 1)
         self._isinit = True
         self._set_extremes()
 
@@ -277,7 +269,7 @@ class LinearColormap:
         if bytes:
             lut = (lut * 255).astype(np.uint8)
 
-        rgba = lut.take(xa, axis=0, mode='clip')
+        rgba = lut.take(xa, axis=0, mode="clip")
 
         if alpha is not None:
             alpha = np.clip(alpha, 0, 1)
@@ -285,8 +277,8 @@ class LinearColormap:
                 alpha *= 255  # Will be cast to uint8 upon assignment.
             if alpha.shape not in [(), xa.shape]:
                 raise ValueError(
-                    f"alpha is array-like but its shape {alpha.shape} does "
-                    f"not match that of X {xa.shape}")
+                    f"alpha is array-like but its shape {alpha.shape} does " f"not match that of X {xa.shape}"
+                )
             rgba[..., -1] = alpha
             # If the "bad" color is all zeros, then ignore alpha input.
             if (lut[-1] == 0).all():
