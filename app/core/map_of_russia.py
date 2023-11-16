@@ -104,13 +104,19 @@ class RussiaHeatMap(Figure):
         for _, row in gdf.iterrows():
             self._fill_regions(row, colormap, add_region_number)
 
+        # TODO
+        # отдельным циклом добавляем номера регионов, чтобы они помещались на график с curveNumber + 1 от регионов
+        if add_region_number and not self._from_startup:
+            for _, row in gdf.iterrows():
+                self._add_region_number(row)
+
         self._add_colorbar(unique_percent)
 
         # не отображать оси, уравнять масштаб по осям
         self.update_xaxes(visible=False)
         self.update_yaxes(visible=False, scaleanchor="x", scaleratio=1)
 
-        self.update_layout(showlegend=False, dragmode="pan")
+        self.update_layout(showlegend=False, dragmode="pan", clickmode='event+select')
 
     def _get_hover_text(self, row: pd.Series) -> str:
         hover_text: list[str] = []
@@ -148,10 +154,6 @@ class RussiaHeatMap(Figure):
                 fillcolor=color,
             )
         )
-        if add_region_number and not self._from_startup:
-            self._add_region_number(row)
-
-        self.update_layout(uniformtext_minsize=8, uniformtext_mode="hide")
 
     def _add_colorbar(self, unique_percent: set[float]) -> None:
         self.add_trace(

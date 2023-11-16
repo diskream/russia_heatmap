@@ -5,11 +5,11 @@ import webbrowser
 import dash
 import dash_bootstrap_components as dbc
 
-from app.factory import setup_app_layout
+from app.callbacks import get_app_layout
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-setup_app_layout(app)
+app.layout = get_app_layout()
 
 
 def open_browser():
@@ -19,4 +19,4 @@ def open_browser():
 
 if __name__ == "__main__":
     Timer(1, open_browser).start()
-    app.run_server(debug=True, port=5000)
+    app.run_server(debug=False, port=5000)
