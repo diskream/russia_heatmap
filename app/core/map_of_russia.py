@@ -116,7 +116,12 @@ class RussiaHeatMap(Figure):
         self.update_xaxes(visible=False)
         self.update_yaxes(visible=False, scaleanchor="x", scaleratio=1)
 
-        self.update_layout(showlegend=False, dragmode="pan", clickmode='event+select')
+        self.update_layout(
+            showlegend=False,
+            dragmode="pan",
+            clickmode="event+select",
+            margin=dict(l=10, r=10, t=10, b=10),
+        )
 
     def _get_hover_text(self, row: pd.Series) -> str:
         hover_text: list[str] = []

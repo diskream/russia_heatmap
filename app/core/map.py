@@ -2,12 +2,13 @@ import difflib
 import io
 import logging
 import os
+
 import geopandas as gpd
 import pandas as pd
 from plotly.graph_objs import Figure
 
 from app.core.map_of_russia import RussiaHeatMap
-from app.core.utils import resource_path, compile_gdf
+from app.core.utils import compile_gdf, resource_path
 
 logger = logging.getLogger("DialogFrame")
 logger.setLevel("INFO")
@@ -60,6 +61,13 @@ class _MapHandlerSingleton:
             return self._get_startup_map()
         return self._get_map()
 
+    def get_totals_serialized(self) -> list[dict[str, float | int]]:
+        totals_df = self.get_totals()
+        return totals_df.to_dict('records')
+
+    def get_totals(self) -> pd.DataFrame:
+        return self.colormap_data
+
     def _get_startup_map(self) -> Figure:
         if self.map is None:
             self.map = RussiaHeatMap(
@@ -106,7 +114,7 @@ class _MapHandlerSingleton:
         )
 
         if not_found_regions:
-            print(not_found_regions)
+            logger.error(not_found_regions)
 
         return self.map
 

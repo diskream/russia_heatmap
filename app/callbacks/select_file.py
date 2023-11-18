@@ -1,6 +1,6 @@
 import base64
 
-from dash import Output, Input, callback
+from dash import Input, Output, callback
 from dash.exceptions import PreventUpdate
 
 from app.core import map_handler
@@ -14,7 +14,6 @@ from app.core import map_handler
     Input("upload-colormap", "contents"),
 )
 def select_file_callback(contents: str | None) -> tuple[list[str], bool, list[str], bool]:
-    print('selecting file')
     if contents is None:
         raise PreventUpdate
     content_type, content_string = contents.split(",")

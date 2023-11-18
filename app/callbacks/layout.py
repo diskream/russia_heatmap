@@ -1,8 +1,7 @@
 import logging
 
 import dash_bootstrap_components as dbc
-from dash import html, dcc
-import plotly.graph_objects as go
+from dash import dash_table, dcc, html
 
 from app.core import map_handler
 
@@ -59,13 +58,22 @@ def get_app_layout():
                     ),
                 ]
             ),
+            html.Div(
+                [
+                    dash_table.DataTable(
+                        [{"a": 1}, {"a": 2}],
+                        id="info-table",
+                        page_size=10,
+                    ),
+                ],
+                style={"zIndex": 200, "position": "absolute", "margin-top": "2%", "margin-left": "2%"},
+            ),
             dcc.Graph(
                 figure=map_handler.get_map(from_startup=True),
                 style={"height": "100vh", "weight": "100vh"},
                 id="main-map",
             ),
-            html.Div(id='hidden-div', style={'display':'none'})
-    ],
+            html.Div(id="hidden-div", style={"display": "none"}),
+        ],
         style={"height": "100vh", "weight": "100vh"},
-
     )

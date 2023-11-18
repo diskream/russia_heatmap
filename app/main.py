@@ -1,6 +1,6 @@
 import os
-from threading import Timer
 import webbrowser
+from threading import Timer
 
 import dash
 import dash_bootstrap_components as dbc
