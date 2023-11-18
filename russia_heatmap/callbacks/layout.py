@@ -3,7 +3,7 @@ import logging
 import dash_bootstrap_components as dbc
 from dash import dash_table, dcc, html
 
-from app.core import map_handler
+from russia_heatmap.core import map_handler
 
 logger = logging.getLogger("startup")
 logger.setLevel("INFO")

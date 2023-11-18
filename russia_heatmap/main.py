@@ -5,7 +5,7 @@ from threading import Timer
 import dash
 import dash_bootstrap_components as dbc
 
-from app.callbacks import get_app_layout
+from russia_heatmap.callbacks import get_app_layout
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 

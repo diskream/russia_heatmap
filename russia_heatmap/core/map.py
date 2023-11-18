@@ -7,8 +7,8 @@ import geopandas as gpd
 import pandas as pd
 from plotly.graph_objs import Figure
 
-from app.core.map_of_russia import RussiaHeatMap
-from app.core.utils import compile_gdf, resource_path
+from russia_heatmap.core.map_of_russia import RussiaHeatMap
+from russia_heatmap.core.utils import compile_gdf, resource_path
 
 logger = logging.getLogger("DialogFrame")
 logger.setLevel("INFO")

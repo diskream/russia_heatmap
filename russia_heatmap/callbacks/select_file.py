@@ -3,7 +3,7 @@ import base64
 from dash import Input, Output, callback
 from dash.exceptions import PreventUpdate
 
-from app.core import map_handler
+from russia_heatmap.core import map_handler
 
 
 @callback(

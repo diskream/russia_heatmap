@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from plotly.graph_objects import Figure, Scatter
 
-from app.core.colormap import LinearColormap
-from app.core.utils import get_color_range
+from russia_heatmap.core.colormap import LinearColormap
+from russia_heatmap.core.utils import get_color_range
 
 REGION_CONFIG: dict[str, dict[str, Any]] = {
     "Московская область": {

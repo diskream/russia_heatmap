@@ -1,7 +1,7 @@
 from dash import Input, Output, State, callback
 from dash.exceptions import PreventUpdate
 
-from app.core.map import map_handler
+from russia_heatmap.core.map import map_handler
 
 
 @callback(

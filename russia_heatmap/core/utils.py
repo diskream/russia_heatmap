@@ -11,7 +11,7 @@ from shapely.geometry.base import GeometrySequence
 from shapely.ops import snap, unary_union
 from tqdm import tqdm
 
-from app.core.colormap import LinearColormap
+from russia_heatmap.core.colormap import LinearColormap
 
 logger = logging.getLogger("utils")
 
