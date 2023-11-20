@@ -1,11 +1,11 @@
 from typing import Any
 
-import numpy as np
 import pandas as pd
 import plotly.express as px
 from plotly.graph_objects import Figure, Scatter
 
 from russia_heatmap.core.colormap import LinearColormap
+from russia_heatmap.core.map_utils import format_number, format_percent
 from russia_heatmap.core.utils import get_color_range
 
 REGION_CONFIG: dict[str, dict[str, Any]] = {
@@ -103,7 +103,7 @@ class RussiaHeatMap(Figure):
         colormap = dict(zip(sorted(unique_percent), tuple(red_blue)))
 
         for _, row in gdf.iterrows():
-            self._fill_regions(row, colormap, add_region_number)
+            self._fill_regions(row, colormap)
 
         # TODO
         # отдельным циклом добавляем номера регионов, чтобы они помещались на график с curveNumber + 1 от регионов
@@ -128,21 +128,26 @@ class RussiaHeatMap(Figure):
 
     def _get_hover_text(self, row: pd.Series) -> str:
         hover_text: list[str] = []
-        row_slice: pd.Series = (
-            row.loc[self._region_column_name :] if not self._from_startup else row.loc[[self._region_column_name]]
+        if self._from_startup:
+            return f"Регион: {row[self._region_column_name]}"
+
+        region_name: str = (
+            row[self._region_column_name] if not isinstance(row[self._region_column_name], float) else row.region
         )
-        for name, value in row_slice.items():
-            if isinstance(value, float) and np.isnan(value):
-                hover_text.append(f"{name}: {row['region']}")
-                break
-            hover_text.append(
-                f"{name}: {value * 100 :.2f} %"
-                if ("процент" in name.lower() or "%" in name) and isinstance(value, (float, int))
-                else f"{name}: {value}"
+        # и так сойдет :D
+        hover_text.extend(
+            (
+                f"<b>{region_name}</b>",
+                f"Заявлено: {format_number(row['Заявлено'])}",
+                f"Взыскано: {format_number(row['Взыскано'])}",
+                f"% отбития: {format_percent(row['% отбития'])}",
+                f"Количество решений в пользу Общества: {format_percent(row['Количество решений в пользу Общества'])}",
+                f"Просроченные задачи: {format_number(row['Просроченные задачи'])}",
             )
+        )
         return "<br>".join(hover_text)
 
-    def _fill_regions(self, row: pd.Series, colormap: dict[float, tuple[float, str]], add_region_number: bool) -> None:
+    def _fill_regions(self, row: pd.Series, colormap: dict[float, tuple[float, str]]) -> None:
         text = self._get_hover_text(row)
         try:
             color = colormap[row[self._target_column_name]][1]

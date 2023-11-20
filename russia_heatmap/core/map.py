@@ -7,6 +7,7 @@ import pandas as pd
 from plotly.graph_objs import Figure
 
 from russia_heatmap.core.map_of_russia import RussiaHeatMap
+from russia_heatmap.core.map_utils import format_number, format_percent
 from russia_heatmap.core.utils import compile_gdf, resource_path
 
 logger = logging.getLogger("DialogFrame")
@@ -69,15 +70,15 @@ class _MapHandlerSingleton:
         return [
             {
                 "Название": "Заявлено",
-                "Значение": round(total_declared, 3),
+                "Значение": format_number(total_declared),
             },
             {
                 "Название": "Взыскано",
-                "Значение": round(total_recovered, 3),
+                "Значение": format_number(total_recovered),
             },
             {
                 "Название": "Процент отбития",
-                "Значение": f"{round(((total_declared - total_recovered) / total_declared) * 100, 2)} %",
+                "Значение": format_percent((total_declared - total_recovered) / total_declared),
             },
         ]
 
