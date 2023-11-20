@@ -24,7 +24,7 @@ def get_app_layout():
                     dbc.Col(
                         dcc.Upload(
                             id="upload-colormap",
-                            children=html.Div(["Перетащите или", html.A(" Выберите файл")]),
+                            children=html.Div(["Открыть .xlsx"]),
                             style={
                                 "width": "100%",
                                 "height": "40px",
