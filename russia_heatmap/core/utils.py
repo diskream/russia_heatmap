@@ -18,6 +18,37 @@ logger = logging.getLogger("utils")
 GDF = TypeVar("GDF", bound=gpd.GeoDataFrame)
 
 
+target_map = {
+    "Кабардино-Балкарская Республика": "Кабардино-Балкарская республика",
+    "Карачаево-Черкесская Республика": "Карачаево-Черкесская республика",
+    "Кемеровская область": "Кемеровская область - Кузбасс область",
+    "Москва": "Москва город",
+    "Республика Адыгея": "Адыгея республика",
+    "Республика Алтай": "Алтай республика",
+    "Республика Башкортостан": "Башкортостан республика",
+    "Республика Бурятия": "Бурятия республика",
+    "Республика Дагестан": "Дагестан республика",
+    "Республика Ингушетия": "Ингушетия республика",
+    "Республика Калмыкия": "Калмыкия республика",
+    "Республика Карелия": "Карелия республика",
+    "Республика Коми": "Коми республика",
+    "Республика Крым": "Крым республика",
+    "Республика Марий Эл": "Марий Эл республика",
+    "Республика Мордовия": "Мордовия республика",
+    "Республика Саха (Якутия)": "Саха /Якутия/ республика",
+    "Республика Северная Осетия — Алания": "Северная Осетия - Алания республика",
+    "Республика Татарстан": "Татарстан республика",
+    "Республика Тыва": "Тыва республика",
+    "Республика Хакасия": "Хакасия республика",
+    "Санкт-Петербург": "Санкт-Петербург город",
+    "Севастополь": "Севастополь город",
+    "Удмуртская Республика": "Удмуртская республика",
+    "Ханты-Мансийский автономный округ — Югра": "Ханты-Мансийский Автономный округ - Югра автономный округ",
+    "Чеченская Республика": "Чеченская республика",
+    "Чувашская Республика": "Чувашская Республика - чувашия",
+}
+
+
 def fix_yamalo_nenestky_ao(gdf: GDF) -> GDF:
     """Исправление линии на 180 меридиане Чукотского АО.
 
@@ -107,7 +138,7 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
     :param mode:
     :return:
     """
-    gdf = gpd.read_file(resource_path(os.path.join("map_data", "russia_regions.geojson")))
+    gdf = gpd.read_file(resource_path(os.path.join("map_data", "russia_regions.geojson"))).replace(target_map)
 
     # переводим в другой CRS правильного отображения на графике
     gdf.to_crs("ESRI:102027", inplace=True)
@@ -121,7 +152,7 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
 
     gdf = pd.merge(
         left=gdf,
-        right=pd.read_excel(resource_path(os.path.join("map_data", "additional_data.xlsx"))),
+        right=pd.read_excel(resource_path(os.path.join("map_data", "additional_data.xlsx"))).replace(target_map),
         left_on="region",
         right_on="Наименование региона (Коды)",
         how="left",
@@ -136,9 +167,15 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
     return gdf
 
 
-def get_color_range(colormap: LinearColormap, color_range: int, mode: Literal["rgb", "rgba"] = "rgb"):
+def get_color_range(
+    colormap: LinearColormap,
+    color_range: int,
+    mode: Literal["rgb", "rgba"] = "rgb",
+    default_alpha: float = 0.8,
+):
     """Получение списка из RGBA значений, соответствующих градиенту цветов из colormap.
 
+    :param default_alpha:
     :param colormap:
     :param color_range:
     :param mode:
@@ -149,7 +186,7 @@ def get_color_range(colormap: LinearColormap, color_range: int, mode: Literal["r
 
     for alpha in range(color_range):
         color = list(map(np.uint8, np.array(colormap(alpha * h)[:3]) * 255))
-        rgb_a_tuple: tuple[float, ...] = tuple(*color) if mode == "rgb" else (*color, 0.9)
+        rgb_a_tuple: tuple[float, ...] = tuple(*color) if mode == "rgb" else (*color, default_alpha)
         colorscale.append([alpha * h, mode + str(rgb_a_tuple)])
 
     return colorscale

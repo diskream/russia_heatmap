@@ -1,4 +1,3 @@
-import difflib
 import io
 import logging
 import os
@@ -61,12 +60,26 @@ class _MapHandlerSingleton:
             return self._get_startup_map()
         return self._get_map()
 
-    def get_totals_serialized(self) -> list[dict[str, float | int]]:
-        totals_df = self.get_totals()
-        return totals_df.to_dict('records')
-
-    def get_totals(self) -> pd.DataFrame:
-        return self.colormap_data
+    def get_totals_serialized(self) -> list[dict[str, float | str]]:
+        try:
+            total_declared = self.colormap_data["Заявлено"].sum()
+            total_recovered = self.colormap_data["Взыскано"].sum()
+        except KeyError:
+            return []
+        return [
+            {
+                "Название": "Заявлено",
+                "Значение": round(total_declared, 3),
+            },
+            {
+                "Название": "Взыскано",
+                "Значение": round(total_recovered, 3),
+            },
+            {
+                "Название": "Процент отбития",
+                "Значение": f"{round(((total_declared - total_recovered) / total_declared) * 100, 2)} %",
+            },
+        ]
 
     def _get_startup_map(self) -> Figure:
         if self.map is None:
@@ -79,24 +92,6 @@ class _MapHandlerSingleton:
         return self.map
 
     def _get_map(self) -> Figure:
-        target_region_names: list[str] = list(self.gdf["region"])
-        colormap_region_names: list[str] = list(self.colormap_data[self.region_column_name])
-
-        target_region_names.sort()
-        colormap_region_names.sort()
-
-        target_map: dict[str, str] = {}
-        for target in target_region_names:
-            colormap_region_name: str | None = next(
-                iter(difflib.get_close_matches(target, colormap_region_names, cutoff=0.5)),
-                None,
-            )
-            if colormap_region_name is not None:
-                target_map[target] = colormap_region_name
-        target_map["Севастополь"] = "Севастополь"
-        #
-        self.gdf["region"].replace(target_map, inplace=True)
-
         new_df = pd.merge(
             left=self.gdf, right=self.colormap_data, left_on="region", right_on=self.region_column_name, how="outer"
         )

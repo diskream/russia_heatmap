@@ -27,8 +27,8 @@ def get_app_layout():
                             children=html.Div(["Перетащите или", html.A(" Выберите файл")]),
                             style={
                                 "width": "100%",
-                                "height": "60px",
-                                "lineHeight": "60px",
+                                "height": "40px",
+                                "lineHeight": "40px",
                                 "borderWidth": "1px",
                                 "borderStyle": "dashed",
                                 "borderRadius": "5px",
@@ -36,13 +36,24 @@ def get_app_layout():
                                 "margin": "10px",
                             },
                         ),
+                        width=2,
+                        style={
+                            "padding": "0 0",
+                        },
                     ),
                     dbc.Col(
                         dcc.Dropdown(
                             id="region-column-name",
                             placeholder="Выберите колонку с названиями регионов",
                             disabled=True,
+                            style={
+                                "width": "100%",
+                            },
                         ),
+                        width=2,
+                        style={
+                            "padding": "0 0",
+                        },
                     ),
                     dbc.Col(
                         dcc.Dropdown(
@@ -50,30 +61,51 @@ def get_app_layout():
                             placeholder="Выберите целевую колонку",
                             disabled=True,
                         ),
+                        width=2,
+                        style={
+                            "padding": "0 0",
+                        },
                     ),
                     dbc.Col(
                         dbc.Button(
-                            "Окрасить карту", id="print-map-btn", className="ms-1", outline=True, color="primary"
-                        )
+                            "Окрасить карту",
+                            id="print-map-btn",
+                            className="ms-1",
+                            outline=True,
+                            color="primary",
+                            style={
+                                "width": "100%",
+                            },
+                        ),
+                        width=2,
+                        style={
+                            "padding": "0 0",
+                        },
                     ),
-                ]
+                ],
+                justify="evenly",
+                align="center",
             ),
             html.Div(
                 [
                     dash_table.DataTable(
-                        [{"a": 1}, {"a": 2}],
                         id="info-table",
                         page_size=10,
+                        style_header={"display": "none"},
+                        style_cell={"textAlign": "left", "padding": "5px"},
+                        style_data={
+                            "whiteSpace": "normal",
+                        },
                     ),
                 ],
                 style={"zIndex": 200, "position": "absolute", "margin-top": "2%", "margin-left": "2%"},
             ),
             dcc.Graph(
                 figure=map_handler.get_map(from_startup=True),
-                style={"height": "100vh", "weight": "100vh"},
+                style={"height": "90vh", "weight": "100vh", "margin": {"b": "20px"}},
                 id="main-map",
             ),
             html.Div(id="hidden-div", style={"display": "none"}),
         ],
-        style={"height": "100vh", "weight": "100vh"},
+        # style={"height": "100vh", "weight": "100vh"},
     )

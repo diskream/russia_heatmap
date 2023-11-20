@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import plotly.express as px
 from plotly.graph_objects import Figure, Scatter
 
 from russia_heatmap.core.colormap import LinearColormap
@@ -110,7 +111,7 @@ class RussiaHeatMap(Figure):
             for _, row in gdf.iterrows():
                 self._add_region_number(row)
 
-        self._add_colorbar(unique_percent)
+        self._add_colorbar(from_startup)
 
         # не отображать оси, уравнять масштаб по осям
         self.update_xaxes(visible=False)
@@ -119,8 +120,10 @@ class RussiaHeatMap(Figure):
         self.update_layout(
             showlegend=False,
             dragmode="pan",
-            clickmode="event+select",
-            margin=dict(l=10, r=10, t=10, b=10),
+            clickmode="event",
+            margin=dict(l=10, r=0, t=0, b=0),
+            plot_bgcolor="white",
+            paper_bgcolor="white",
         )
 
     def _get_hover_text(self, row: pd.Series) -> str:
@@ -134,7 +137,7 @@ class RussiaHeatMap(Figure):
                 break
             hover_text.append(
                 f"{name}: {value * 100 :.2f} %"
-                if "процент" in name.lower() and isinstance(value, (float, int))
+                if ("процент" in name.lower() or "%" in name) and isinstance(value, (float, int))
                 else f"{name}: {value}"
             )
         return "<br>".join(hover_text)
@@ -160,23 +163,22 @@ class RussiaHeatMap(Figure):
             )
         )
 
-    def _add_colorbar(self, unique_percent: set[float]) -> None:
+    def _add_colorbar(self, from_startup: bool) -> None:
         self.add_trace(
             Scatter(
                 x=[None],
                 y=[None],
                 mode="markers",
                 marker=dict(
-                    colorscale=get_color_range(self.COLOR_MAP, 255, mode="rgba"),
-                    showscale=True,
-                    cmin=-5,
-                    cmax=5,
-                    colorbar=dict(
-                        thickness=20,
-                        tickvals=[-5, 5],
-                        ticktext=[f"{int(min(unique_percent) * 100)} %", f"{int(max(unique_percent) * 100)} %"],
-                        outlinewidth=0,
+                    colorscale=(
+                        get_color_range(self.COLOR_MAP, 255, mode="rgba")
+                        if not from_startup
+                        else px.colors.sequential.Greys
                     ),
+                    showscale=True,
+                    cmin=-4,
+                    cmax=4,
+                    colorbar=dict(thickness=25, tickvals=[-4, 4], ticktext=["0 %", "100 %"], outlinewidth=1, len=0.95),
                 ),
                 hoverinfo="none",
             )
