@@ -12,7 +12,6 @@ from shapely.geometry.base import GeometrySequence
 from shapely.ops import snap, unary_union
 from tqdm import tqdm
 
-
 logger = logging.getLogger("utils")
 
 GDF = TypeVar("GDF", bound=gpd.GeoDataFrame)

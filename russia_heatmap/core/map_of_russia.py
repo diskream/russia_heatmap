@@ -69,7 +69,7 @@ REGION_CONFIG: dict[str, dict[str, Any]] = {
 class RussiaHeatMap(Figure):
     """Шаблон фигуры для рисования поверх карты России"""
 
-    COLOR_MAP = LinearSegmentedColormap.from_list('rg', ['r', 'yellow', 'g'], N=100)
+    COLOR_MAP = LinearSegmentedColormap.from_list("rg", ["r", "yellow", "g"], N=100)
 
     def __init__(
         self,
@@ -77,6 +77,7 @@ class RussiaHeatMap(Figure):
         gdf,
         region_column_name: str,
         target_column_name: str,
+        district_map: dict[str, set[int]],
         add_region_number: bool = True,
         from_startup: bool = False,
         **kwargs,
@@ -87,14 +88,17 @@ class RussiaHeatMap(Figure):
         self._target_column_name = target_column_name
         self._from_startup = from_startup
 
-        unique_percent: set[float] = set(gdf[self._target_column_name].dropna()) if not self._from_startup else {0.0, 1.0}
+        unique_percent: set[float] = (
+            set(gdf[self._target_column_name].dropna()) if not self._from_startup else {0.0, 1.0}
+        )
 
         red_blue = get_color_range(self.COLOR_MAP, len(unique_percent), mode="rgba")
 
         # сопоставляем отсортированные значения процентов с rgba цветом
         colormap = dict(zip(sorted(unique_percent), tuple(red_blue)))
 
-        for _, row in gdf.iterrows():
+        for curve_number, row in gdf.iterrows():
+            district_map[row["federal_district"]].add(curve_number)
             self._fill_regions(row, colormap)
 
         # TODO

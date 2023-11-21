@@ -1,6 +1,7 @@
 import io
 import logging
 import os
+from collections import defaultdict
 
 import geopandas as gpd
 import pandas as pd
@@ -37,7 +38,11 @@ class _MapHandlerSingleton:
 
         self._colormap_data: pd.DataFrame
 
+        self._district_map: dict[str, set[int]] = defaultdict(set)
+
         self.map: RussiaHeatMap | None = None
+
+        self._presentation_dir_path: str
 
     @property
     def colormap_data(self) -> pd.DataFrame:
@@ -50,11 +55,34 @@ class _MapHandlerSingleton:
         if isinstance(value, pd.DataFrame):
             self._colormap_data = value
         else:
+            # noinspection PyAttributeOutsideInit
             self._colormap_data = pd.read_excel(io.BytesIO(value))
+
+    @property
+    def presentation_dir_path(self) -> str:
+        if hasattr(self, "_presentation_dir_path"):
+            return self._presentation_dir_path
+        raise AttributeError("Attribute presentation_dir_path is not set")
+
+    @presentation_dir_path.setter
+    def presentation_dir_path(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise ValueError("Directory path must be string.")
+        # noinspection PyAttributeOutsideInit
+        self._presentation_dir_path = value
 
     @property
     def colormap_columns(self) -> list[str]:
         return list(self.colormap_data.columns)
+
+    def get_district_by_curve_number(self, curve_number: int) -> str:
+        #'Дальневосточный, Сибирский, Уральский, Северо-Западный, Приволжский, Южный, Центральный, Северо-Кавказский, Крымский'
+        if not self._district_map:
+            raise AttributeError("District map is not set yet.")
+        for district, curve_set in self._district_map.items():
+            if curve_number in curve_set:
+                return district
+        raise KeyError("Curve {} was not found in districts".format(curve_number))
 
     def get_map(self, *, from_startup: bool = False) -> Figure:
         if from_startup:
@@ -89,6 +117,7 @@ class _MapHandlerSingleton:
                 region_column_name=self.region_column_name,
                 target_column_name=self.target_column_name,
                 from_startup=True,
+                district_map=self._district_map,
             )
         return self.map
 
@@ -107,6 +136,7 @@ class _MapHandlerSingleton:
             gdf=new_df.dropna(subset=["region"]),
             region_column_name=self.region_column_name,
             target_column_name=self.target_column_name,
+            district_map=self._district_map,
         )
 
         if not_found_regions:
