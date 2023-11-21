@@ -2,9 +2,9 @@ from typing import Any
 
 import pandas as pd
 import plotly.express as px
+from matplotlib.colors import LinearSegmentedColormap
 from plotly.graph_objects import Figure, Scatter
 
-from russia_heatmap.core.colormap import LinearColormap
 from russia_heatmap.core.map_utils import format_number, format_percent
 from russia_heatmap.core.utils import get_color_range
 
@@ -69,15 +69,7 @@ REGION_CONFIG: dict[str, dict[str, Any]] = {
 class RussiaHeatMap(Figure):
     """Шаблон фигуры для рисования поверх карты России"""
 
-    COLOR_MAP = LinearColormap(
-        "RedBlue",
-        {
-            "red": ((0.0, 0.12, 0.12), (1.0, 0.96, 0.96)),
-            "green": ((0.0, 0.53, 0.53), (1.0, 0.15, 0.15)),
-            "blue": ((0.0, 0.90, 0.90), (1.0, 0.34, 0.34)),
-            "alpha": ((0.0, 1, 1), (0.5, 1, 1), (1.0, 1, 1)),
-        },
-    )
+    COLOR_MAP = LinearSegmentedColormap.from_list('rg', ['r', 'yellow', 'g'], N=100)
 
     def __init__(
         self,
@@ -95,7 +87,7 @@ class RussiaHeatMap(Figure):
         self._target_column_name = target_column_name
         self._from_startup = from_startup
 
-        unique_percent: set[float] = set(gdf[self._target_column_name]) if not self._from_startup else {0.0, 1.0}
+        unique_percent: set[float] = set(gdf[self._target_column_name].dropna()) if not self._from_startup else {0.0, 1.0}
 
         red_blue = get_color_range(self.COLOR_MAP, len(unique_percent), mode="rgba")
 

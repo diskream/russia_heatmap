@@ -14,6 +14,7 @@ plotly = "^5.17.0"
 pyarrow = {version = "^13.0.0", extras = ["parquet"]}
 dash = "^2.14.1"
 dash-bootstrap-components = "^1.5.0"
+matplotlib = "^3.8.2"
 
 
 [tool.poetry.group.dev.dependencies]

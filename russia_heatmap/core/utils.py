@@ -6,12 +6,12 @@ from typing import Literal, TypeVar
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap
 from shapely import MultiPolygon, Polygon
 from shapely.geometry.base import GeometrySequence
 from shapely.ops import snap, unary_union
 from tqdm import tqdm
 
-from russia_heatmap.core.colormap import LinearColormap
 
 logger = logging.getLogger("utils")
 
@@ -168,10 +168,10 @@ def compile_gdf(path: str, mode: Literal["pickle", "parquet"] = "parquet") -> gp
 
 
 def get_color_range(
-    colormap: LinearColormap,
+    colormap: LinearSegmentedColormap,
     color_range: int,
     mode: Literal["rgb", "rgba"] = "rgb",
-    default_alpha: float = 0.8,
+    default_alpha: float = 0.7,
 ):
     """Получение списка из RGBA значений, соответствующих градиенту цветов из colormap.
 

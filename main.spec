@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['app\\main.py'],
+    ['russia_heatmap\\main.py'],
     pathex=[],
     binaries=[],
-    datas=[('app\\map_data\\russia_regions.parquet', 'map_data'), ('app\\map_data\\russia_regions.geojson', 'map_data')],
+    datas=[('russia_heatmap\\map_data\\russia_regions.parquet', 'map_data'), ('russia_heatmap\\map_data\\russia_regions.geojson', 'map_data')],
     hiddenimports=['fiona._shim', 'pyarrow.vendored.version'],
     hookspath=[],
     hooksconfig={},
