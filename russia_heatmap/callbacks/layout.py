@@ -106,6 +106,29 @@ def get_app_layout():
                 id="main-map",
             ),
             html.Div(id="hidden-div", style={"display": "none"}),
+            html.Div(
+                [
+                    dbc.Button("Open modal", id="open", n_clicks=0),
+                    dbc.Modal(
+                        [
+                            dbc.ModalHeader(dbc.ModalTitle("Header")),
+                            dbc.ModalBody("This is the content of the modal"),
+                            dbc.Carousel(
+                                items=[
+                                    {"key": "1", "src": "/static/first.jpg"},
+                                    {"key": "2", "src": "/static/second.jpg"},
+                                ],
+                                controls=True,
+                                indicators=True,
+                                id='presentation-carousel'
+                            )
+                        ],
+                        id="modal",
+                        is_open=False,
+                    ),
+                ]
+            )
         ],
+
         # style={"height": "100vh", "weight": "100vh"},
     )
