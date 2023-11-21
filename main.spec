@@ -5,7 +5,11 @@ a = Analysis(
     ['russia_heatmap\\main.py'],
     pathex=[],
     binaries=[],
-    datas=[('russia_heatmap\\map_data\\russia_regions.parquet', 'map_data'), ('russia_heatmap\\map_data\\russia_regions.geojson', 'map_data')],
+    datas=[
+    ('russia_heatmap\\map_data\\russia_regions.parquet', 'map_data'),
+    ('russia_heatmap\\map_data\\russia_regions.geojson', 'map_data'),
+    ('russia_heatmap\\_temp_slides\\__init__.py', '_temp_slides')
+    ],
     hiddenimports=['fiona._shim', 'pyarrow.vendored.version'],
     hookspath=[],
     hooksconfig={},
