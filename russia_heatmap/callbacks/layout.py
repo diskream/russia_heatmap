@@ -22,14 +22,19 @@ def get_app_layout():
             dbc.Row(
                 [
                     dbc.Col(
-                        dbc.Button(
-                            "Папка с презентациями",
-                            id="open-presentation-directory",
-                            outline=False,
-                            color="warning",
-                            style={
-                                "width": "100%",
-                            },
+                        dcc.Upload(
+                            id="upload-slides",
+                            children=dbc.Button(
+                                "Открыть слайды",
+                                id="open-presentation-directory",
+                                outline=False,
+                                color="warning",
+                                style={
+                                    "width": "100%",
+                                },
+                            ),
+                            accept="image/*",
+                            multiple=True,
                         ),
                         width=2,
                         style={
@@ -50,6 +55,7 @@ def get_app_layout():
                                 "textAlign": "center",
                                 "margin": "10px",
                             },
+                            accept=".xlsx",
                         ),
                         width=2,
                         style={
@@ -127,11 +133,19 @@ def get_app_layout():
                     dbc.Modal(
                         [
                             dbc.ModalHeader(dbc.ModalTitle(id="modal-header-text", children="Title")),
-                            dbc.ModalBody(id="modal-body-text", children="BodyText"),
-                            dbc.Carousel(items=[], controls=True, indicators=True, id="presentation-carousel"),
+                            # dbc.ModalBody(id="modal-body-text", children="BodyText"),
+                            dbc.Carousel(
+                                items=[],
+                                controls=True,
+                                indicators=True,
+                                id="presentation-carousel",
+                                style={"height": "90vh", "weight": "95vh"},
+                            ),
                         ],
+                        size="xl",
                         id="modal",
                         is_open=False,
+                        fullscreen=True,
                     ),
                 ]
             ),

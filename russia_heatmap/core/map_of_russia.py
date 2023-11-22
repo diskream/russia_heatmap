@@ -98,7 +98,8 @@ class RussiaHeatMap(Figure):
         colormap = dict(zip(sorted(unique_percent), tuple(red_blue)))
 
         for curve_number, row in gdf.iterrows():
-            district_map[row["federal_district"]].add(curve_number)
+            if not from_startup:
+                district_map[row["РЦСР"]].add(curve_number)
             self._fill_regions(row, colormap)
 
         # TODO

@@ -42,7 +42,7 @@ class _MapHandlerSingleton:
 
         self.map: RussiaHeatMap | None = None
 
-        self._presentation_dir_path: str
+        self.slides: dict[str, str] = {}
 
     @property
     def colormap_data(self) -> pd.DataFrame:
@@ -59,24 +59,16 @@ class _MapHandlerSingleton:
             self._colormap_data = pd.read_excel(io.BytesIO(value))
 
     @property
-    def presentation_dir_path(self) -> str:
-        if hasattr(self, "_presentation_dir_path"):
-            return self._presentation_dir_path
-        raise AttributeError("Attribute presentation_dir_path is not set")
-
-    @presentation_dir_path.setter
-    def presentation_dir_path(self, value: str) -> None:
-        if not isinstance(value, str):
-            raise ValueError("Directory path must be string.")
-        # noinspection PyAttributeOutsideInit
-        self._presentation_dir_path = value
-
-    @property
     def colormap_columns(self) -> list[str]:
         return list(self.colormap_data.columns)
 
+    def add_slide(self, *, slide_name: str, slide_img: str) -> None:
+        self.slides[slide_name] = slide_img
+
+    def clear_slides(self) -> None:
+        self.slides.clear()
+
     def get_district_by_curve_number(self, curve_number: int) -> str:
-        #'Дальневосточный, Сибирский, Уральский, Северо-Западный, Приволжский, Южный, Центральный, Северо-Кавказский, Крымский'
         if not self._district_map:
             raise AttributeError("District map is not set yet.")
         for district, curve_set in self._district_map.items():

@@ -1,37 +1,29 @@
-import os
-import shutil
-from tkinter import filedialog
 from typing import Literal
 
-from dash import Input, Output, callback
+from dash import Input, Output, State, callback
 from dash.exceptions import PreventUpdate
 
 from russia_heatmap.core import map_handler
-from russia_heatmap.core.utils import resource_path
-
-IMAGE_EXTENSIONS: tuple[str, ...] = (".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".gif")
 
 
 @callback(
     Output("open-presentation-directory", "color"),
     Output("open-presentation-directory", "outline"),
-    Input("open-presentation-directory", "n_clicks"),
+    Input("upload-slides", "contents"),
+    State("upload-slides", "filename"),
 )
-def open_presentation_directory_callback(n_clicks: int | None) -> tuple[Literal["success"], Literal[True]]:
-    if n_clicks is None:
+def open_presentation_directory_callback(
+    images: list[str] | None,
+    image_names: list[str] | None,
+) -> tuple[Literal["success"], Literal[True]]:
+    if images is None:
         raise PreventUpdate
-    print("dir asked")
-    ask_dir = filedialog.askdirectory()
-    print("dir asked")
-    map_handler.presentation_dir_path = ask_dir
-    presentation_path: str = map_handler.presentation_dir_path
 
-    for file in os.listdir(presentation_path):
-        full_file_path: str = os.path.join(presentation_path, file)
-        if not os.path.isfile(full_file_path) or not any(file.endswith(ext) for ext in IMAGE_EXTENSIONS):
-            continue
+    map_handler.clear_slides()
 
-        target_file_path: str = os.path.join(resource_path("_temp_slides"), file)
-        shutil.copyfile(full_file_path, target_file_path)
+    for slide_file_name, slide_base64 in zip(image_names, images):
+        slide_name, *_ = slide_file_name.split(".")
+
+        map_handler.add_slide(slide_name=slide_name, slide_img=slide_base64)
 
     return "success", True
