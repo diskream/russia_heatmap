@@ -107,6 +107,10 @@ def get_app_layout():
                 justify="evenly",
                 align="center",
             ),
+            dbc.Alert(id="error-alert", is_open=False, dismissable=True, color="danger", duration=10000),
+            dbc.Alert(id="error-alert-update-map", is_open=False, dismissable=True, color="danger", duration=10000),
+            dbc.Alert(id="error-alert-select-file", is_open=False, dismissable=True, color="danger", duration=10000),
+            dbc.Alert(id="error-alert-scatter-action", is_open=False, dismissable=True, color="danger", duration=10000),
             html.Div(
                 [
                     dash_table.DataTable(
@@ -123,23 +127,20 @@ def get_app_layout():
             ),
             dcc.Graph(
                 figure=map_handler.get_map(from_startup=True),
-                style={"height": "90vh", "weight": "100vh", "margin": {"b": "20px"}},
+                style={"height": "89vh", "weight": "100vh", "margin": {"b": "20px"}},
                 id="main-map",
             ),
-            html.Div(id="hidden-div", style={"display": "none"}),
             html.Div(id="presentation-action-div", style={"display": "none"}),
             html.Div(
                 [
                     dbc.Modal(
                         [
                             dbc.ModalHeader(dbc.ModalTitle(id="modal-header-text", children="Title")),
-                            # dbc.ModalBody(id="modal-body-text", children="BodyText"),
                             dbc.Carousel(
                                 items=[],
                                 controls=True,
                                 indicators=True,
                                 id="presentation-carousel",
-                                style={"height": "90vh", "weight": "95vh"},
                             ),
                         ],
                         size="xl",
@@ -150,5 +151,4 @@ def get_app_layout():
                 ]
             ),
         ],
-        # style={"height": "100vh", "weight": "100vh"},
     )

@@ -62,6 +62,10 @@ class _MapHandlerSingleton:
     def colormap_columns(self) -> list[str]:
         return list(self.colormap_data.columns)
 
+    def reset_column_names(self):
+        self.target_column_name: str = ""
+        self.region_column_name: str = "region"
+
     def add_slide(self, *, slide_name: str, slide_img: str) -> None:
         self.slides[slide_name] = slide_img
 
