@@ -113,6 +113,7 @@ class RussiaHeatMap(Figure):
         # не отображать оси, уравнять масштаб по осям
         self.update_xaxes(visible=False)
         self.update_yaxes(visible=False, scaleanchor="x", scaleratio=1)
+        self.update_yaxes(automargin=True)
 
         self.update_layout(
             showlegend=False,
@@ -121,6 +122,7 @@ class RussiaHeatMap(Figure):
             margin=dict(l=10, r=0, t=0, b=0),
             plot_bgcolor="white",
             paper_bgcolor="white",
+            hovermode='closest',
         )
 
     def _get_hover_text(self, row: pd.Series) -> str:

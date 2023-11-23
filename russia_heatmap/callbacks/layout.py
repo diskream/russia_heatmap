@@ -30,7 +30,7 @@ def get_app_layout():
                                 outline=False,
                                 color="warning",
                                 style={
-                                    "width": "100%",
+                                    "width": "95%",
                                 },
                             ),
                             accept="image/*",
@@ -46,7 +46,7 @@ def get_app_layout():
                             id="upload-colormap",
                             children=html.Div(["Открыть .xlsx"]),
                             style={
-                                "width": "100%",
+                                "width": "95%",
                                 "height": "40px",
                                 "lineHeight": "40px",
                                 "borderWidth": "1px",
@@ -68,7 +68,7 @@ def get_app_layout():
                             placeholder="Выберите колонку с названиями регионов",
                             disabled=True,
                             style={
-                                "width": "100%",
+                                "width": "95%",
                             },
                         ),
                         width=2,
@@ -95,7 +95,7 @@ def get_app_layout():
                             outline=True,
                             color="primary",
                             style={
-                                "width": "100%",
+                                "width": "95%",
                             },
                         ),
                         width=2,
@@ -123,7 +123,7 @@ def get_app_layout():
             ),
             dcc.Graph(
                 figure=map_handler.get_map(from_startup=True),
-                style={"height": "90vh", "weight": "100vh", "margin": {"b": "20px"}},
+                style={"height": "89vh", "weight": "100vh"},
                 id="main-map",
             ),
             html.Div(id="hidden-div", style={"display": "none"}),
@@ -139,12 +139,14 @@ def get_app_layout():
                                 controls=True,
                                 indicators=True,
                                 id="presentation-carousel",
-                                style={"height": "90vh", "weight": "95vh"},
                             ),
                         ],
-                        size="xl",
                         id="modal",
                         is_open=False,
+                        style={"max-width": "none", 'width': '90%', 'max-height': '90%'},
+                        centered=True,
+                        scrollable=False,
+                        size='xl',
                         fullscreen=True,
                     ),
                 ]
