@@ -6,8 +6,18 @@ import dash
 import dash_bootstrap_components as dbc
 
 from russia_heatmap.callbacks import get_app_layout
+from russia_heatmap.core.utils import resource_path
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(
+    __name__,
+    assets_folder='assets',
+    assets_url_path='/assets',
+    serve_locally=True,
+    include_assets_files=True,
+)
+
+app.css.config.serve_locally = True
+app.scripts.config.serve_locally = True
 
 app.layout = get_app_layout()
 

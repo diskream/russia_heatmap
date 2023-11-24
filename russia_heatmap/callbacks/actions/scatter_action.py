@@ -37,7 +37,7 @@ def scatter_action(selected_data: dict[str, Any]) -> tuple[bool, CarouselItems, 
             found_files.append(slide_name)
 
     if not carousel_items:
-        msg = "Для данного РЦСО не найдены слайды. Убедитесь, что слайды названы 'РЦСО№{номер_рцсо}_{номер_слайда}'"
+        msg = "Для данного РЦСР не найдены слайды. Убедитесь, что слайды названы 'РЦСР№{номер_рцср}_{номер_слайда}'"
         return False, [], "", True, msg
 
     return True, sorted(carousel_items, key=lambda row: int(row["key"])), district, False, ""
