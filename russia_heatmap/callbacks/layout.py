@@ -132,18 +132,34 @@ def get_app_layout():
                 [
                     dbc.Modal(
                         [
-                            dbc.ModalHeader(dbc.ModalTitle(id="modal-header-text", children="Title")),
-                            # dbc.ModalBody(id="modal-body-text", children="BodyText"),
-                            dbc.Carousel(
-                                items=[],
-                                controls=True,
-                                indicators=True,
-                                id="presentation-carousel",
+                            dbc.ModalHeader(
+                                dbc.ModalTitle(
+                                    id="modal-header-text",
+                                    children="Title"
+                                ),
+                                style={"height": "70px"}
                             ),
+                            dbc.ModalBody(
+                                id="modal-body-text",
+                                children=dbc.Carousel(
+                                    items=[],
+                                    controls=True,
+                                    indicators=True,
+                                    id="presentation-carousel",
+                                    class_name="carousel-container",
+                                ),
+                                style={
+                                    "height": "calc(100% - 70px)",
+                                    "overflow": "hidden",
+                                    "padding": 0,
+                                    "display": "block",
+                                }
+                            ),
+
                         ],
                         id="modal",
                         is_open=False,
-                        style={"max-width": "none", 'width': '90%', 'max-height': '90%'},
+                        style={"max-width": "none", 'max-height': '100%', 'overflow': 'hidden'},
                         centered=True,
                         scrollable=False,
                         size='xl',

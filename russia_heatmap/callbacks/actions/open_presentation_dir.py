@@ -31,6 +31,16 @@ def open_presentation_directory_callback(
 
         map_handler.add_slide(slide_name=slide_name, slide_img=slide_base64)
 
-        carousel_items.append({"key": slide_name, "src": slide_base64})
+        carousel_items.append({
+            "key": slide_name,
+            "src": slide_base64,
+            "img_class_name": "carousel-img",
+            "img_style": {
+                "max-height": "100%",
+                "max-width": "100%",
+                "width": "auto!important",
+                "display": "block",
+            }
+        })
 
     return "success", True, True, carousel_items, slide_name
