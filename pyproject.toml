@@ -21,7 +21,6 @@ matplotlib = "^3.8.2"
 ruff = "^0.1.5"
 nuitka = "^1.8.4"
 jupyter = "^1.0.0"
-black = "^23.9.1"
 pyside6 = "^6.6.0"
 pyinstaller = "^6.1.0"
 

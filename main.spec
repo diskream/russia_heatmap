@@ -8,6 +8,8 @@ a = Analysis(
     datas=[
     ('russia_heatmap\\map_data\\russia_regions.parquet', 'map_data'),
     ('russia_heatmap\\map_data\\russia_regions.geojson', 'map_data'),
+    ('russia_heatmap\\assets\\bootstrap.min.css', 'assets'),
+
     ],
     hiddenimports=['fiona._shim', 'pyarrow.vendored.version'],
     hookspath=[],
@@ -17,25 +19,25 @@ a = Analysis(
     noarchive=False,
 )
 
-def extra_datas(mydir):
-    def rec_glob(p, files):
-        import os
-        import glob
-        for d in glob.glob(p):
-            if os.path.isfile(d):
-                files.append(d)
-            rec_glob("%s/*" % d, files)
-    files = []
-    rec_glob("%s/*" % mydir, files)
-    extra_datas = []
-    for f in files:
-        extra_datas.append((f, f, 'DATA'))
-
-    return extra_datas
+#def extra_datas(mydir):
+#    def rec_glob(p, files):
+#        import os
+#        import glob
+#        for d in glob.glob(p):
+#            if os.path.isfile(d):
+#                files.append(d)
+#            rec_glob("%s/*" % d, files)
+#    files = []
+#    rec_glob("%s/*" % mydir, files)
+#    extra_datas = []
+#    for f in files:
+#        extra_datas.append((f, f, 'DATA'))
+#
+#    return extra_datas
 ###########################################
 
 # append the 'data' dir
-a.datas += extra_datas('assets')
+#a.datas += extra_datas('assets')
 
 pyz = PYZ(a.pure)
 
@@ -63,5 +65,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='main',
+    name='heatmap',
 )
